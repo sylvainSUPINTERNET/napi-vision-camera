@@ -1,4 +1,12 @@
+#pragma once
+
 #include <napi.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#elif defined(__unix__) || defined(__unix) || defined(__APPLE__)
+#include <dlfcn.h>
+#endif 
 
 Napi::String Hello(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();

@@ -1,4 +1,5 @@
 .vscode
+doc/*.pdf
 build
 dist
 node_modules

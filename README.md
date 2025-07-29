@@ -1,6 +1,8 @@
 # Genicam-nodejs
 
+Standard : 
 
+[https://www.emva.org/standards-technology/genicam/genicam-downloads/?utm_source=chatgpt.com](https://www.emva.org/standards-technology/genicam/genicam-downloads/?utm_source=chatgpt.com)
 
 ```` bash
 
