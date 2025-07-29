@@ -1,0 +1,6 @@
+/src
+/test.mjs
+/native
+/build/**/*.obj
+/build/**/*.vcxproj*
+/node_modules

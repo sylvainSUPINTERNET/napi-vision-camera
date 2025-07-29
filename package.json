@@ -1,0 +1,29 @@
+{
+  "name": "@sylvaindev/napi-vision-camera",
+  "version": "1.0.0",
+  "description": "Genicam GenTL node-api addon",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "build/Release/addon.node"],
+  "scripts": {
+    "preinstall": "npm install node-addon-api",
+    "build:native": "node-gyp configure build",
+    "build:ts": "tsc",
+    "build": "npm run build:native && npm run build:ts",
+    "prepare": "npm run build",
+    "test": "node test.mjs"
+  },
+  "gypfile": true,
+  "type": "module",
+  "keywords": ["native", "typescript", "addon", "napi", "esm","genicam","gentl","genicam nodejs"],
+  "author": "https://github.com/sylvainSUPINTERNET",
+  "license": "MIT",
+  "dependencies": {
+    "node-addon-api": "^7.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "node-gyp": "^10.0.0"
+  }
+}
