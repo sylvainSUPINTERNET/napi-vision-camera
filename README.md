@@ -22,6 +22,8 @@ npm publish
 
 # Conf exemple
 
+`.vscode/c_cpp_properties.json`
+
 ```` json
 {
     "configurations": [
