@@ -4,6 +4,12 @@ Standard :
 
 [https://www.emva.org/standards-technology/genicam/genicam-downloads/?utm_source=chatgpt.com](https://www.emva.org/standards-technology/genicam/genicam-downloads/?utm_source=chatgpt.com)
 
+
+# Requirements
+- Python 
+- [Download "Desktop Development with C++" from Visual Studio build tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+
+
 ```` bash
 
 npm i -g node-gyp
