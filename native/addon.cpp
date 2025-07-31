@@ -38,7 +38,13 @@ void LoadCtiFile(const Napi::CallbackInfo& info) {
     }
 
     GenTL::PGCInitLib GCInitLib = (GenTL::PGCInitLib)GetProcAddress(gentl, "GCInitLib");
-    GenTL::GC_ERROR status = GCInitLib();
+
+    if ( !GCInitLib ) {
+      GenTL::GC_ERROR status = GCInitLib();
+    } else {
+      Napi::Error::New(env, "Failed to call GCInitLib: " + ctiPath.Utf8Value()).ThrowAsJavaScriptException();
+    }
+
   
   #elif defined(__unix__) || defined(__unix) || defined(__APPLE__)
     // TODO
