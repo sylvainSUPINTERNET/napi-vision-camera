@@ -10,12 +10,6 @@
 #endif 
 
 
-
-
-// typedef GC_ERROR (GC_CALLTYPE *PFN_GCInitLib)(void);
-// PFN_GCInitLib GCInitLib_ptr = reinterpret_cast<PFN_GCInitLib>(
-//     GetProcAddress(gentlLib, "GCInitLib"));
-
 Napi::String Hello(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   return Napi::String::New(env, "Hello from C++!");
@@ -36,11 +30,20 @@ void LoadCtiFile(const Napi::CallbackInfo& info) {
 
   Napi::String ctiPath = info[0].As<Napi::String>();
 
-  HMODULE gentl = LoadLibraryA(ctiPath.Utf8Value().c_str());
-  if (!gentl) {
-    Napi::Error::New(env, "Failed to load cti file: " + ctiPath.Utf8Value()).ThrowAsJavaScriptException();
-    return;
-  }
+  #ifdef _WIN32
+    HMODULE gentl = LoadLibraryA(ctiPath.Utf8Value().c_str());
+    if (!gentl) {
+      Napi::Error::New(env, "Failed to load cti file: " + ctiPath.Utf8Value()).ThrowAsJavaScriptException();
+      return;
+    }
+
+    GenTL::PGCInitLib GCInitLib = (GenTL::PGCInitLib)GetProcAddress(gentl, "GCInitLib");
+    GenTL::GC_ERROR status = GCInitLib();
+  
+  #elif defined(__unix__) || defined(__unix) || defined(__APPLE__)
+    // TODO
+  #endif
+
 
 
 
