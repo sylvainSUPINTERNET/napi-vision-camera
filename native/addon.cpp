@@ -15,13 +15,8 @@ Napi::String Hello(const Napi::CallbackInfo& info) {
   return Napi::String::New(env, "Hello from C++!");
 }
 
-Napi::Object Init(Napi::Env env, Napi::Object exports) {
-  exports.Set("hello", Napi::Function::New(env, Hello));
-  return exports;
-}
 
-
-void LoadCtiFile(const Napi::CallbackInfo& info) {
+void loadCtiFile(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   if ( info.Length() < 1 || !info[0].IsString() ) {
     Napi::TypeError::New(env, "Expected file path as argument").ThrowAsJavaScriptException();
@@ -39,21 +34,32 @@ void LoadCtiFile(const Napi::CallbackInfo& info) {
 
     GenTL::PGCInitLib GCInitLib = (GenTL::PGCInitLib)GetProcAddress(gentl, "GCInitLib");
 
-    if ( !GCInitLib ) {
+    if (GCInitLib) {
       GenTL::GC_ERROR status = GCInitLib();
+      if (status != GenTL::GC_ERR_SUCCESS) {
+        Napi::Error::New(env, "GCInitLib failed with status code: " + std::to_string(status)).ThrowAsJavaScriptException();
+        return;
+      }
     } else {
-      Napi::Error::New(env, "Failed to call GCInitLib: " + ctiPath.Utf8Value()).ThrowAsJavaScriptException();
+      Napi::Error::New(env, "Failed to get GCInitLib from CTI: " + ctiPath.Utf8Value()).ThrowAsJavaScriptException();
+      return;
     }
 
-  
-  #elif defined(__unix__) || defined(__unix) || defined(__APPLE__)
-    // TODO
-  #endif
 
-
-
+    
+    #elif defined(__unix__) || defined(__unix) || defined(__APPLE__)
+      // TODO
+    #endif
 
 }
+
+
+Napi::Object Init(Napi::Env env, Napi::Object exports) {
+  exports.Set("hello", Napi::Function::New(env, Hello));
+  exports.Set("loadCtiFile", Napi::Function::New(env, loadCtiFile));
+  return exports;
+}
+
 
 
 

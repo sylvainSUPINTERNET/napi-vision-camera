@@ -9,3 +9,8 @@ const addon = require(join(__dirname, '../build/Release/addon.node'));
 export function hello(): string {
   return addon.hello();
 }
+
+
+export function loadCtiFile(filePath: string): void {
+  return addon.loadCtiFile(filePath);  
+}

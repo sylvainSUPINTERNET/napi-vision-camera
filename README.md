@@ -25,6 +25,9 @@ npm run test
 
 npm publish
 
+
+npx node-gyp clean # error with LINKER
+
 ````
 
 
