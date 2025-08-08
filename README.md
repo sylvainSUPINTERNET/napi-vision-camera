@@ -28,6 +28,8 @@ npm publish
 
 npx node-gyp clean # error with LINKER
 
+# Becarefull the .cti file must be x64 if you use x64 nodejs / x86 if you use x86 nodejs
+
 ````
 
 
