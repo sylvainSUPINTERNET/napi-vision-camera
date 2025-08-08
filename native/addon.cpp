@@ -42,9 +42,7 @@ void loadCtiFile(const Napi::CallbackInfo& info) {
     GenTL::PGCInitLib GCInitLib = (GenTL::PGCInitLib)GetProcAddress(gentl, "GCInitLib");
     GenTL::PTLOpen fnTLOpen = (GenTL::PTLOpen)GetProcAddress(gentl, "TLOpen");
     GenTL::PTLUpdateInterfaceList fnTLUpdateInterfaceList = (GenTL::PTLUpdateInterfaceList)GetProcAddress(gentl, "TLUpdateInterfaceList");
-    
-    //GC_API_P(PTLUpdateInterfaceList   )( TL_HANDLE hTL, bool8_t *pbChanged, uint64_t iTimeout );
-
+    GenTL::PTLGetNumInterfaces fnTLGetNumInterfaces = (GenTL::PTLGetNumInterfaces)GetProcAddress(gentl, "TLGetNumInterfaces");
 
     if ( GCInitLib ) {
       GenTL::GC_ERROR status = GCInitLib();
@@ -58,7 +56,7 @@ void loadCtiFile(const Napi::CallbackInfo& info) {
     }
 
     if ( fnTLOpen) {
-        GenTL::TL_HANDLE tlHandle = nullptr;
+      GenTL::TL_HANDLE tlHandle = nullptr;
       GenTL::GC_ERROR status = fnTLOpen(&tlHandle);
       if (status != GenTL::GC_ERR_SUCCESS) {
         Napi::Error::New(env, "TLOpen failed with status code: " + std::to_string(status)).ThrowAsJavaScriptException();
@@ -76,7 +74,17 @@ void loadCtiFile(const Napi::CallbackInfo& info) {
             return;
           } else {
             std::cout << "TLUpdateInterfaceList succeeded, changed: " << (changed ? "true" : "false") << std::endl;
-          
+
+            uint32_t numIfaces = 0;
+            if ( fnTLGetNumInterfaces ) {
+              fnTLGetNumInterfaces(tlHandle, &numIfaces);
+              if ( numIfaces == 0 ) {
+                Napi::Error::New(env, "No interfaces found").ThrowAsJavaScriptException();
+                return;
+              } else {
+                std::cout << "Number of interfaces found: " << numIfaces << std::endl;
+              }
+            }
           }
 
       }
@@ -107,3 +115,34 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
 
 
 NODE_API_MODULE(addon, Init)
+
+
+/*
+
+Après avoir chargé ta lib avec GCInitLib() et chargé la .cti, tu fais :
+
+TLOpen() – ouvre une instance du transport layer
+→ Donne un TL_HANDLE (hTL)
+
+TLUpdateInterfaceList(hTL, ...)
+→ Rafraîchit la liste des interfaces réseau/USB/etc.
+
+TLGetNumInterfaces(hTL, &numIfaces)
+→ Combien d'interfaces sont dispo ? (GigE, USB3, etc.)
+
+TLGetInterfaceID(hTL, i, ...)
+→ Récupère l’ID d’une interface
+
+TLOpenInterface(hTL, ifaceID, &hIF)
+→ Ouvre une interface (IF_HANDLE)
+
+IFUpdateDeviceList(hIF, ...)
+→ Scanne les caméras connectées
+
+IFGetNumDevices(hIF, &numDevices)
+→ Combien de caméras trouvées ?
+
+IFGetDeviceID(hIF, i, ...)
+→ ID de la caméra (tu peux l’ouvrir ensuite)
+
+*/
