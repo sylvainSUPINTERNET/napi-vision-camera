@@ -43,6 +43,11 @@ void loadCtiFile(const Napi::CallbackInfo& info) {
     GenTL::PTLOpen fnTLOpen = (GenTL::PTLOpen)GetProcAddress(gentl, "TLOpen");
     GenTL::PTLUpdateInterfaceList fnTLUpdateInterfaceList = (GenTL::PTLUpdateInterfaceList)GetProcAddress(gentl, "TLUpdateInterfaceList");
     GenTL::PTLGetNumInterfaces fnTLGetNumInterfaces = (GenTL::PTLGetNumInterfaces)GetProcAddress(gentl, "TLGetNumInterfaces");
+    GenTL::PTLGetInterfaceID fnTLGetInterfaceID = (GenTL::PTLGetInterfaceID)GetProcAddress(gentl, "TLGetInterfaceID");
+    GenTL::PTLGetInterfaceInfo fnTLGetInterfaceInfo = (GenTL::PTLGetInterfaceInfo)GetProcAddress(gentl, "TLGetInterfaceInfo");
+
+ //    GC_API_P(PTLGetInterfaceInfo      )( TL_HANDLE hTL, const char *sIfaceID, INTERFACE_INFO_CMD iInfoCmd, INFO_DATATYPE *piType, void *pBuffer, size_t *piSize );
+
 
     if ( GCInitLib ) {
       GenTL::GC_ERROR status = GCInitLib();
@@ -83,6 +88,37 @@ void loadCtiFile(const Napi::CallbackInfo& info) {
                 return;
               } else {
                 std::cout << "Number of interfaces found: " << numIfaces << std::endl;
+                if ( fnTLGetInterfaceID ) {
+                  for ( uint32_t i=0; i < numIfaces; ++i ) {
+                    size_t idSize = 0;
+                    fnTLGetInterfaceID(tlHandle, i, nullptr, &idSize);
+                    std::vector<char> buf(idSize); // allocate and destroy automatically
+                    GenTL::GC_ERROR status = fnTLGetInterfaceID(tlHandle, i, buf.data(), &idSize);
+                    if (status != GenTL::GC_ERR_SUCCESS) {
+                      Napi::Error::New(env, "TLGetInterfaceID failed with status code: " + std::to_string(status)).ThrowAsJavaScriptException();
+                      return;
+                    }
+                    std::string ifaceID(buf.data(), idSize);
+                    std::cout << "Interface ID " << i << ": " << ifaceID << std::endl;
+                  }
+                }
+
+                // if (fnTLGetInterfaceInfo) {
+                //   for ( uint32_t i = 0; i < numIfaces; ++i ) {
+                //     const char *ifaceID = nullptr;
+                //     GenTL::INTERFACE_INFO_DISPLAYNAME;
+                //     GenTL::INTERFACE_INFO_CMD_LIST cmd = GenTL::INTERFACE_INFO_DISPLAYNAME;
+                //     GenTL::INFO_DATATYPE type = 1;
+                //     size_t size = 0;
+                //     GenTL::GC_ERROR status = fnTLGetInterfaceInfo(tlHandle, ifaceID, cmd, &type, nullptr, &size);
+                //     if (status != GenTL::GC_ERR_SUCCESS) {
+                //       Napi::Error::New(env, "TLGetInterfaceInfo failed with status code: " + std::to_string(status)).ThrowAsJavaScriptException();
+                //       return;
+                //     }
+                //   }
+                // }
+
+
               }
             }
           }
